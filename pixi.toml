@@ -1,0 +1,76 @@
+# =====================================================================
+#  Reproducible environment for the DPOA / CMS Open Data analysis
+#  "Search for dark matter produced in association with top quarks"
+#
+# =====================================================================
+[workspace]
+name = "dpoa-dark-matter"
+version = "0.1.0"
+description = "Reproducible CMS Open Data analysis: dark matter + top quarks (All-Hadronic channel)"
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[dependencies]
+python = "3.11.*"
+
+# --- Scikit-HEP / IO stack ------------------------------------------
+uproot   = ">=5.3"
+awkward  = ">=2.6"
+vector   = ">=1.4"
+hist     = ">=2.7"
+mplhep   = ">=0.3.50"
+
+# --- XRootD: REQUIRED to read root:// URLs from CMS Open Data --------
+# This is the piece that is missing from a plain `pip install` setup and
+# is the reason the "download" step was failing for the collaboration.
+xrootd        = ">=5.6"
+fsspec-xrootd = "*"
+fsspec        = "*"
+aiohttp       = "*"
+requests      = "*"
+
+# --- data handling ---------------------------------------------------
+numpy   = ">=1.26,<3"
+pandas  = ">=2.2"
+pyarrow = ">=15"
+
+# --- notebook / plotting --------------------------------------------
+matplotlib-base   = ">=3.8"
+jupyterlab        = ">=4.2"
+ipywidgets        = "*"
+ipykernel         = "*"
+jupyterlab-lsp    = "*"
+python-lsp-server = "*"
+jupytext          = "*"
+nbdime            = "*"
+tqdm              = "*"
+
+# ---------------------------------------------------------------------
+#  Everything below keeps caches/venv on THIS disk (the project disk),
+#  never on the small root/home partition.
+# ---------------------------------------------------------------------
+[activation.env]
+JUPYTER_DATA_DIR   = ".jupyter/data"
+JUPYTER_CONFIG_DIR = ".jupyter/config"
+JUPYTER_RUNTIME_DIR= ".jupyter/runtime"
+IPYTHONDIR         = ".jupyter/ipython"
+MPLCONFIGDIR       = ".cache/matplotlib"
+XDG_CACHE_HOME     = ".cache"
+# XRootD robustness against the flaky eospublic redirector
+XRD_REQUESTTIMEOUT = "1800"
+XRD_STREAMTIMEOUT  = "600"
+XRD_CONNECTIONWINDOW = "60"
+XRD_CONNECTIONRETRY  = "5"
+
+[tasks]
+# --- main entry point -------------------------------------------------
+lab = { cmd = "jupyter lab --notebook-dir=. --no-browser --ServerApp.token='' --ServerApp.password='' --port=8888", description = "Start JupyterLab on http://localhost:8888" }
+
+# --- quick end-to-end checks (1 file per dataset, ~20 min each) --------
+smoke-sl = { cmd = "DPOA_N_FILES=1 jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=7200 Single_Lepton.ipynb", description = "Run the single-lepton notebook on 1 file per dataset" }
+smoke-ah = { cmd = "DPOA_N_FILES=1 jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=7200 All_Hadronic.ipynb", description = "Run the all-hadronic notebook on 1 file per dataset" }
+
+# --- regenerate the notebooks from their upstream sources -------------
+build-sl = { cmd = "python build_single_lepton.py", description = "Regenerate Single_Lepton.ipynb from the docs markdown" }
+build-ah = { cmd = "python build_all_hadronic.py", description = "Regenerate All_Hadronic.ipynb from upstream/All_Hadronic_20files.ipynb" }
+build    = { depends-on = ["build-sl", "build-ah"], description = "Regenerate both notebooks" }
