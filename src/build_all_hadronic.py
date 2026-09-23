@@ -35,8 +35,9 @@ from pathlib import Path
 import nbformat
 
 HERE = Path(__file__).parent
-SOURCE = HERE / "upstream" / "All_Hadronic_20files.ipynb"
-OUT = HERE / "All_Hadronic.ipynb"
+REPO_ROOT = HERE.parent
+SOURCE = REPO_ROOT / "notebooks" / "upstream" / "All_Hadronic_20files.ipynb"
+OUT = REPO_ROOT / "notebooks" / "All_Hadronic.ipynb"
 
 # All-hadronic parquet files get their own suffix. Both channels select
 # different events from the SAME datasets, and the upstream notebooks both

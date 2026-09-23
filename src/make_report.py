@@ -2,7 +2,7 @@
 """Build the visual comparison report: paper | before | corrected.
 
 Deliberately minimal -- plots and a one-page summary of what was changed.
-Every channel and every region is labelled. Output: comparacion.pdf
+Every channel and every region is labelled. Output: results/comparacion.pdf
 """
 from __future__ import annotations
 
@@ -18,10 +18,11 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 HERE = Path(__file__).parent
-DOCS = HERE.parent / "search-for-dark-matter-docs" / "docs"
-SCRATCH = Path(os.environ.get("DPOA_SCRATCH", HERE / "_report_scratch"))
+REPO_ROOT = HERE.parent
+DOCS = REPO_ROOT.parent / "search-for-dark-matter-docs" / "docs"
+SCRATCH = Path(os.environ.get("DPOA_SCRATCH", REPO_ROOT / "_report_scratch"))
 PAPERFIGS = SCRATCH / "paperfigs"
-OUT = HERE / "comparacion.pdf"
+OUT = REPO_ROOT / "results" / "comparacion.pdf"
 
 MINE = SCRATCH / "mine_now"
 MINE.mkdir(parents=True, exist_ok=True)
@@ -134,7 +135,7 @@ def summary_page(pdf):
             "que no podemos derivar del análisis:",
             ha="center", fontsize=8.5, color="#333333")
     ax.text(0.5, 0.018,
-            "los k-factors NLO de V+jets  y  la muestra VH.  Ver RUNBOOK.md, "
+            "los k-factors NLO de V+jets  y  la muestra VH.  Ver docs/RUNBOOK.md, "
             "[OPEN-4] y [OPEN-5].",
             ha="center", fontsize=8.5, color="#333333")
     pdf.savefig(fig, dpi=130)
@@ -142,8 +143,8 @@ def summary_page(pdf):
 
 
 def main():
-    ah = extract(HERE / "runs" / "All_Hadronic_run.ipynb", "ah")
-    sl = extract(HERE / "runs" / "Single_Lepton_run.ipynb", "sl")
+    ah = extract(REPO_ROOT / "runs" / "All_Hadronic_run.ipynb", "ah")
+    sl = extract(REPO_ROOT / "runs" / "Single_Lepton_run.ipynb", "sl")
     print(f"graficas generadas: AH={len(ah)}  SL={len(sl)}")
 
     A, S, P = DOCS / "All_Hadronic", DOCS / "Single_Lepton", PAPERFIGS

@@ -67,9 +67,15 @@ N_FILES: int = int(os.environ.get("DPOA_N_FILES", 20))
 # *physics* input and is left exactly as the collaboration set it.
 LUMI_PB: float = 3400.0
 
-OUTPUT_DIR = Path("output_raw")
-NTUPLES_JSON = Path("ntuples.json")
-LUMI_JSON = Path("Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt")
+# Resolved from this file's location, not the current working directory: a
+# notebook's kernel cwd is wherever notebooks/ sits, so anything cwd-relative
+# here would silently write output_raw/ next to the notebook instead of at
+# the repo root.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+OUTPUT_DIR = REPO_ROOT / "output_raw"
+NTUPLES_JSON = REPO_ROOT / "ntuples.json"
+LUMI_JSON = REPO_ROOT / "Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt"
 
 _LUMI_URL = (
     "https://opendata.cern.ch/record/14220/files/"
@@ -485,4 +491,4 @@ def show_table(filename: str, caption: str = "") -> None:
     label = caption or filename
     print(f"[reference figure not included in the repository: {label}]")
     print("  This is a screenshot of a table from the paper; it carries no physics.")
-    print("  See the corresponding table in paper.pdf.")
+    print("  See the corresponding table in docs/paper.pdf.")

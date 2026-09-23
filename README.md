@@ -1,10 +1,14 @@
 # Search for dark matter produced in association with top quarks — CMS Open Data
 
 A reproducible re-implementation of the CMS analysis
-[*Search for dark matter produced in association with a single top quark or a top quark pair in proton–proton collisions at √s = 13 TeV*](paper.pdf)
+[*Search for dark matter produced in association with a single top quark or a top quark pair in proton–proton collisions at √s = 13 TeV*](docs/paper.pdf)
 using [CMS Open Data](https://opendata.cern.ch/) from 2016.
 
 Part of the **CERN DPOA** collaboration effort to make the analysis runnable by anyone.
+
+**Looking for the results, not the code?** The plots CERN already signed off
+on are in [`results/`](results/) — no setup needed, just open the PDF. See
+[Already-run results](#already-run-results) below.
 
 ---
 
@@ -26,9 +30,9 @@ cd search-for-dark-matter
 pixi run lab
 ```
 
-Open <http://localhost:8888/lab> and run **`Single_Lepton.ipynb`** or
-**`All_Hadronic.ipynb`** top to bottom. That is the whole setup: no `pip
-install`, no conda environment to activate, no system package to add.
+Open <http://localhost:8888/lab> and run **`notebooks/Single_Lepton.ipynb`**
+or **`notebooks/All_Hadronic.ipynb`** top to bottom. That is the whole setup:
+no `pip install`, no conda environment to activate, no system package to add.
 
 If this is your first time running it, read the step-by-step guide below —
 it explains what each stage does, how long it takes, and what to do when
@@ -36,6 +40,23 @@ something fails. If you have run it before, this is all you need.
 
 > Tested on Linux x86-64. The lockfile pins that platform; other platforms
 > (macOS included) are untested and may need `pixi.toml` adjusted.
+
+---
+
+## Already-run results
+
+You do not need to run anything to see the result: `results/` holds the
+output that CERN/DPOA already reviewed and approved.
+
+| File | What it is |
+|---|---|
+| [`results/comparacion.pdf`](results/comparacion.pdf) | **The approved comparison** — paper vs. before-fix vs. corrected, for every channel and signal region. This is the one to open first. |
+| [`results/Single_Lepton_run.ipynb`](results/Single_Lepton_run.ipynb) | The single-lepton notebook exactly as executed to produce that comparison, plots included. |
+| [`results/All_Hadronic_run.ipynb`](results/All_Hadronic_run.ipynb) | The all-hadronic notebook exactly as executed to produce that comparison, plots included. |
+
+These are static snapshots — GitHub renders the `.ipynb` files with their
+plots directly, no Jupyter required. `notebooks/` (below) holds the clean,
+*unexecuted* versions you run yourself to reproduce them.
 
 ---
 
@@ -92,14 +113,14 @@ home partition.
 
 | Notebook | Channel | Paper section |
 |---|---|---|
-| `Single_Lepton.ipynb` | 1 lepton (muon **and** electron) | 4.1, 4.3.1 |
-| `All_Hadronic.ipynb` | 0 leptons | 4.2, 4.3.2 |
+| `notebooks/Single_Lepton.ipynb` | 1 lepton (muon **and** electron) | 4.1, 4.3.1 |
+| `notebooks/All_Hadronic.ipynb` | 0 leptons | 4.2, 4.3.2 |
 
 They are independent — run either first. Both write their results to
 `output_raw/`, under different filenames, so they do not interfere.
 
-> The notebooks in `upstream/` are the original versions, kept for reference.
-> Do not run those.
+> The notebooks in `notebooks/upstream/` are the original versions, kept for
+> reference. Do not run those.
 
 ### Step 4 — Check it works before the long run
 
@@ -153,8 +174,8 @@ empty background is worse than an error.
 
 | Notebook | Datasets | Approximate wall time |
 |---|---|---|
-| `Single_Lepton.ipynb` | 12 MC + 2 data, **two** channels | 3–5 hours |
-| `All_Hadronic.ipynb` | 11 MC + 1 data, one channel | 1.5–3 hours |
+| `notebooks/Single_Lepton.ipynb` | 12 MC + 2 data, **two** channels | 3–5 hours |
+| `notebooks/All_Hadronic.ipynb` | 11 MC + 1 data, one channel | 1.5–3 hours |
 
 This is measured on a good connection and varies a lot with network speed —
 the step is almost entirely I/O against CERN. **You can stop and resume**:
@@ -171,7 +192,9 @@ produces `mT_W`, `met`, `nJet`, `nBTag` for the muon and electron channels,
 then `met` per signal region (`SR_1b_0f`, `SR_1b_1f`, `SR_2b`) and control
 region. `All_Hadronic.ipynb` produces the same baseline distributions and
 signal regions for the 0-lepton channel. Every plot is a stacked MC
-histogram with data overlaid as black points, in CMS style.
+histogram with data overlaid as black points, in CMS style. Compare what you
+get against [`results/comparacion.pdf`](results/comparacion.pdf) — the
+CERN-approved reference.
 
 ### Where the output goes
 
@@ -189,7 +212,7 @@ right-click the image in JupyterLab.
 
 ### Changing the configuration
 
-Both knobs live at the top of `dpoa_io.py`:
+Both knobs live at the top of `src/dpoa_io.py`:
 
 ```python
 N_FILES: int = 20        # files per dataset
@@ -217,40 +240,49 @@ channel depends far less on the broken samples.
 
 ---
 
-## What is in here
+## Repository layout
 
-| File | What it is |
-|---|---|
-| `Single_Lepton.ipynb` | **The single-lepton analysis** (muon + electron): baseline plots, signal regions, control regions. Generated by `build_single_lepton.py`. |
-| `All_Hadronic.ipynb` | **The all-hadronic (0-lepton) analysis.** Generated by `build_all_hadronic.py`. |
-| `RUNBOOK.md` | **Every change made to the upstream analysis**, split into computational (COMP) and physics (PHYS), each with its justification and source. Read this to review or revert a specific change. |
-| `dpoa_datasets.py` | Physics inputs: dataset records, cross sections with provenance, per-dataset luminosity. |
-| `dpoa_workshop.py` | Upstream dataset registry: maps dataset names to CMS Open Data file indexes. |
-| `dpoa_io.py` | Computational helpers — downloads, XRootD retries, parallel processing, normalisation bookkeeping. **Contains no physics.** |
-| `build_single_lepton.py` | Regenerates `Single_Lepton.ipynb` from the docs markdown. |
-| `build_all_hadronic.py` | Regenerates `All_Hadronic.ipynb` from `upstream/All_Hadronic_20files.ipynb`. |
-| `region_plot_cell.py` | The signal-region plot, shared verbatim by both builders and embedded into both notebooks. Kept in one file so a fix cannot land in one channel and miss the other. |
-| `make_report.py` | Internal tool used to build `comparacion.pdf` (paper / before / corrected). Not part of reproducing the analysis — it needs paper-figure screenshots and a sibling docs checkout that are not included here. |
-| `run_analysis.sh` | Runs the notebooks end to end, **resuming automatically after a network drop**. Use this rather than calling `nbconvert` by hand. |
-| `upstream/` | The original notebooks, kept for provenance. **Not meant to be run.** |
-| `paper.pdf` | The published CMS paper. |
-| `comparacion.pdf` | Visual comparison: paper vs. before vs. corrected, for every channel and region. |
+```
+.
+├── notebooks/              ← run these
+│   ├── Single_Lepton.ipynb        the single-lepton analysis (muon + electron)
+│   ├── All_Hadronic.ipynb         the all-hadronic (0-lepton) analysis
+│   └── upstream/                  original DPOA notebooks, reference only — not meant to be run
+├── results/                ← already-run, CERN-approved output (see above)
+│   ├── comparacion.pdf
+│   ├── Single_Lepton_run.ipynb
+│   └── All_Hadronic_run.ipynb
+├── src/                     the "library": everything the notebooks import
+│   ├── dpoa_io.py                  downloads, XRootD retries, caching — no physics
+│   ├── dpoa_datasets.py            physics inputs: cross sections, luminosity, provenance
+│   ├── dpoa_workshop.py            upstream dataset registry (file indexes per record)
+│   ├── build_single_lepton.py      regenerates notebooks/Single_Lepton.ipynb
+│   ├── build_all_hadronic.py       regenerates notebooks/All_Hadronic.ipynb
+│   ├── region_plot_cell.py         the signal-region plot, shared by both builders
+│   └── make_report.py              internal tool that built results/comparacion.pdf
+├── docs/                    background reading, not needed to run anything
+│   ├── RUNBOOK.md                  every change vs. upstream, with justification
+│   └── paper.pdf                   the published CMS paper
+├── run_analysis.sh          runs the notebooks end to end, resumes after network drops
+├── pixi.toml / pixi.lock    the reproducible environment
+└── output_raw/               created on first run — cached per-dataset parquet, gitignored
+```
 
 > Both notebooks are **generated**. Lasting edits belong in the corresponding
-> `build_*.py`, not in the `.ipynb` — `pixi run build` overwrites them.
+> `src/build_*.py`, not in the `.ipynb` — `pixi run build` overwrites them.
 
-Not included: `analysisis_notes.pdf`, the CMS analysis note this work also
-draws on. It is collaboration-internal, not public like the paper — ask a
-DPOA mentor for a copy if you need it; it is not required to run the
+Not included: `docs/analysisis_notes.pdf`, the CMS analysis note this work
+also draws on. It is collaboration-internal, not public like the paper — ask
+a DPOA mentor for a copy if you need it; it is not required to run the
 notebooks.
 
 ### Where the physics lives
 
 Every selection cut, cross section, b-tagging working point and kinematic
 definition is **in the notebook**, in plain sight, exactly as the
-collaboration wrote it. `dpoa_io.py` deliberately contains none of it — it
-only handles networking and bookkeeping. If you want to change the analysis,
-you edit the notebook, never the helper module.
+collaboration wrote it. `src/dpoa_io.py` deliberately contains none of it —
+it only handles networking and bookkeeping. If you want to change the
+analysis, you edit the notebook, never the helper module.
 
 ---
 
@@ -328,7 +360,7 @@ They are recorded so nobody rediscovers them the hard way.
   (`build_lumi_mask` is imported but unused).
 
 For everything that **has** been fixed, with justification and source, see
-[RUNBOOK.md](RUNBOOK.md).
+[docs/RUNBOOK.md](docs/RUNBOOK.md).
 
 ---
 
@@ -347,8 +379,9 @@ practically pip-installable. This is the single most common setup failure.
 Use `pixi run lab`.
 
 **`ModuleNotFoundError: No module named 'dpoa_io'`**
-The kernel's working directory is not the repository root. Start Jupyter
-with `pixi run lab` from inside the repo.
+You are not inside the pixi environment. `src/` (where `dpoa_io.py` lives) is
+only on the Python path when the process was launched through pixi — start
+Jupyter with `pixi run lab`, not a `jupyter lab` installed elsewhere.
 
 **A dataset reports `all N file(s) failed`**
 Check you can reach `eospublic.cern.ch` on port 1094. `dpoa_io` already
@@ -366,11 +399,11 @@ quarter of the time, at the cost of statistical precision.
 
 **I edited a notebook and lost my changes**
 Both notebooks are *generated*. `pixi run build-sl` and `pixi run build-ah`
-overwrite them. Put lasting edits in `build_single_lepton.py` or
-`build_all_hadronic.py`, not in the `.ipynb`.
+overwrite them. Put lasting edits in `src/build_single_lepton.py` or
+`src/build_all_hadronic.py`, not in the `.ipynb`.
 
 **I changed the signal-region plot and only one channel picked it up**
-It no longer works that way: the plot lives in `region_plot_cell.py` and
+It no longer works that way: the plot lives in `src/region_plot_cell.py` and
 both builders embed the same file. Edit that, then rebuild both notebooks.
 
 **Downloads fail with "could not open root://... after 6 attempts"**

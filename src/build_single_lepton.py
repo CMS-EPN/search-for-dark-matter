@@ -26,14 +26,15 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).parent
+REPO_ROOT = HERE.parent
 DOCS_MD = (
-    HERE.parent
+    REPO_ROOT.parent
     / "search-for-dark-matter-docs"
     / "docs"
     / "Single_Lepton"
     / "Analisis_muon_final_version.md"
 )
-OUT = HERE / "Single_Lepton.ipynb"
+OUT = REPO_ROOT / "notebooks" / "Single_Lepton.ipynb"
 
 
 # ---------------------------------------------------------------------------

@@ -56,6 +56,9 @@ JUPYTER_RUNTIME_DIR= ".jupyter/runtime"
 IPYTHONDIR         = ".jupyter/ipython"
 MPLCONFIGDIR       = ".cache/matplotlib"
 XDG_CACHE_HOME     = ".cache"
+# Absolute, not relative: a notebook's kernel cwd is notebooks/, not the repo
+# root, so `import dpoa_io` needs src/ on sys.path regardless of cwd.
+PYTHONPATH = "${PIXI_PROJECT_ROOT}/src"
 # XRootD robustness against the flaky eospublic redirector
 XRD_REQUESTTIMEOUT = "1800"
 XRD_STREAMTIMEOUT  = "600"
@@ -67,10 +70,10 @@ XRD_CONNECTIONRETRY  = "5"
 lab = { cmd = "jupyter lab --notebook-dir=. --no-browser --ServerApp.token='' --ServerApp.password='' --port=8888", description = "Start JupyterLab on http://localhost:8888" }
 
 # --- quick end-to-end checks (1 file per dataset, ~20 min each) --------
-smoke-sl = { cmd = "DPOA_N_FILES=1 jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=7200 Single_Lepton.ipynb", description = "Run the single-lepton notebook on 1 file per dataset" }
-smoke-ah = { cmd = "DPOA_N_FILES=1 jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=7200 All_Hadronic.ipynb", description = "Run the all-hadronic notebook on 1 file per dataset" }
+smoke-sl = { cmd = "DPOA_N_FILES=1 jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=7200 notebooks/Single_Lepton.ipynb", description = "Run the single-lepton notebook on 1 file per dataset" }
+smoke-ah = { cmd = "DPOA_N_FILES=1 jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=7200 notebooks/All_Hadronic.ipynb", description = "Run the all-hadronic notebook on 1 file per dataset" }
 
 # --- regenerate the notebooks from their upstream sources -------------
-build-sl = { cmd = "python build_single_lepton.py", description = "Regenerate Single_Lepton.ipynb from the docs markdown" }
-build-ah = { cmd = "python build_all_hadronic.py", description = "Regenerate All_Hadronic.ipynb from upstream/All_Hadronic_20files.ipynb" }
+build-sl = { cmd = "python src/build_single_lepton.py", description = "Regenerate notebooks/Single_Lepton.ipynb from the docs markdown" }
+build-ah = { cmd = "python src/build_all_hadronic.py", description = "Regenerate notebooks/All_Hadronic.ipynb from notebooks/upstream/All_Hadronic_20files.ipynb" }
 build    = { depends-on = ["build-sl", "build-ah"], description = "Regenerate both notebooks" }

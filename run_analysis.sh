@@ -53,7 +53,7 @@ for nb in "${NOTEBOOKS[@]}"; do
   echo "=================================================================="
   echo "### $nb -- started $(date -Is)"
   echo "=================================================================="
-  cp "$nb.ipynb" "_run_$nb.ipynb"
+  cp "notebooks/$nb.ipynb" "_run_$nb.ipynb"
   ok=0
   for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     echo "--- attempt $attempt/$MAX_ATTEMPTS  $(date -Is)"

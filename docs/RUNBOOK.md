@@ -17,12 +17,13 @@ Every entry states: what changed, why, the source that justifies it, how to
 verify it, and how to revert it.
 
 **Upstream reference.** The original notebooks are preserved untouched in
-`upstream/`. The single-lepton original is the markdown export in
+`notebooks/upstream/`. The single-lepton original is the markdown export in
 `../search-for-dark-matter-docs/docs/Single_Lepton/`.
 
 **Source abbreviations.**
-- *paper* — `paper.pdf`, CMS-EXO-18-010
-- *note* — `analysisis_notes.pdf`, the CMS analysis note (tables cited by number)
+- *paper* — `docs/paper.pdf`, CMS-EXO-18-010
+- *note* — `docs/analysisis_notes.pdf`, the CMS analysis note (tables cited by
+  number; collaboration-internal, ask a DPOA mentor for a copy — not in git)
 - *record N* — CMS Open Data record `https://opendata.cern.ch/record/N`
 
 ---
@@ -184,7 +185,7 @@ the number that failed, and each is listed with its error.
 ### COMP-03 · One `N_FILES` constant instead of two
 
 **Was:** `N_FILES = 20` in the processing cell and `N_FILES_MC = 10` in the
-`sumGenWeights` cell (in `All_Hadronic.ipynb`; the two happened to agree in
+`sumGenWeights` cell (in `notebooks/All_Hadronic.ipynb`; the two happened to agree in
 `All_Hadronic2.ipynb`).
 
 **Now:** both read `dpoa_io.N_FILES`.
@@ -192,7 +193,7 @@ the number that failed, and each is listed with its error.
 **Why:** the MC weight is `σ · L / sumGenWeights`. If the events come from 20
 files and the denominator from 10, every MC sample is normalised by a
 denominator that does not correspond to the events being normalised — here, a
-factor of 2. **This was a live bug in `All_Hadronic.ipynb`.**
+factor of 2. **This was a live bug in `notebooks/All_Hadronic.ipynb`.**
 
 **Verify:** the config line printed by the first cell; both cells report the
 same file count.
@@ -308,8 +309,8 @@ from the paper and carry no physics.
 ### COMP-12 · Notebooks are generated, not hand-edited
 
 **Now:** `pixi run build-sl` / `build-ah` regenerate the notebooks from
-`upstream/` and the docs markdown. Each patch is a named block in
-`build_single_lepton.py` / `build_all_hadronic.py` with a comment saying what
+`notebooks/upstream/` and the docs markdown. Each patch is a named block in
+`src/build_single_lepton.py` / `src/build_all_hadronic.py` with a comment saying what
 was wrong.
 
 **Why:** it keeps the upstream physics auditable — the build scripts verify that
@@ -448,7 +449,7 @@ above are how each fix was checked.
 
 **Impact: largest.** Z(νν) is **29.5 %** of the all-hadronic background.
 
-**Is:** `dpoa_workshop.py` maps `Zvv` to
+**Is:** `src/dpoa_workshop.py` maps `Zvv` to
 `ggH_HToSSTo4l_lowctau_MH-500_MS-150_ctauS-100` — a long-lived-particle
 **signal** sample (932 events in its first file) — while assigning it the Z→νν
 cross section 77.3 pb.
@@ -467,7 +468,7 @@ p_T^miss > 250 GeV.
 **Open question — the cross section.** Not published in the record metadata,
 and note Table 6 is HT-binned where Open Data is p_T(Z)-binned, so the two are
 not interchangeable. See **[OPEN-1]** below. Interim value in
-`dpoa_datasets.py` is derived from the DY sample by branching ratio (× 2.974)
+`src/dpoa_datasets.py` is derived from the DY sample by branching ratio (× 2.974)
 and labelled as derived.
 
 **Verify:** Z(νν) should come out at 29.5 % of the AH background after the
@@ -653,7 +654,7 @@ Two traps worth recording:
 - XSDB lists the BPSFilter rows under **UL17**, not UL16. A cross section does
   not depend on the data-taking year — same √s, generator, tune and gridpack —
   so it carries over. This is an inference, small but not zero, and is flagged
-  in `dpoa_datasets.py`.
+  in `src/dpoa_datasets.py`.
 
 **Remaining tension — resolve empirically.** 453 967 events at 0.7333 pb is an
 equivalent luminosity of **619 fb⁻¹**, i.e. 17× the full 2016 dataset. That is
@@ -686,7 +687,7 @@ open check, and is settled empirically by the Table 12 comparison.
 
 Applying the PHYS changes makes the plots closer to the paper but no longer a
 faithful reproduction of the DPOA notebooks. Recommendation: keep both — the
-upstream behaviour is preserved in `upstream/` and regenerable, so PHYS changes
+upstream behaviour is preserved in `notebooks/upstream/` and regenerable, so PHYS changes
 can be applied to the main notebooks without losing it.
 
 ### [OPEN-3] m_T2^W (PHYS-05) — the largest cut in the SL selection
@@ -1103,11 +1104,11 @@ they were not the same histogram. Four separate mismatches, all of them
 visible, none of them physics.
 
 These were found by cropping the six panels of Figure 4 (single lepton, page
-16) and the three of Figure 5 (all hadronic, page 17) out of `paper.pdf` at
+16) and the three of Figure 5 (all hadronic, page 17) out of `docs/paper.pdf` at
 300 dpi and reading the axes and stack off the pixels, rather than trusting the
 figure captions.
 
-The plot function now lives in one file, `region_plot_cell.py`, which both
+The plot function now lives in one file, `src/region_plot_cell.py`, which both
 build scripts embed into their notebook. It used to be duplicated as a
 one-line string literal in each builder, so a fix to one silently left the
 other behind.
