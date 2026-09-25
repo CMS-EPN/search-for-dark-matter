@@ -574,11 +574,22 @@ NTUPLES_B = '''\
 #     tail, which is what survives pTmiss > 250 GeV.
 ntuples = dd.build_registry(nanoaod_filenames)
 
-with open("ntuples.json", "w") as f:
+with open(dpoa_io.NTUPLES_JSON, "w") as f:
     json.dump(ntuples, f, indent=1)
 
 print()
 print(f"{len(ntuples)} datasets indexed.")
+'''
+
+FILESET_CALL = '''\
+# ntuples_json resolves through dpoa_io.NTUPLES_JSON (repo root), not a bare
+# relative path -- a notebook's kernel working directory is wherever the
+# .ipynb file sits, which is notebooks/, not the repo root.
+fileset = construct_fileset(
+    ntuples_json=str(dpoa_io.NTUPLES_JSON),
+    limit=None,
+    verbose=True
+)
 '''
 
 XSEC_B = '''\
@@ -1082,6 +1093,7 @@ PATCHES = [
     ("def download_files(url)",                  NTUPLES_B,        "ntuples index"),
     ("Cert_271036-284044",                       LUMI,             "golden JSON"),
     ("XSEC_PB = {",                              XSEC_B,           "cross sections"),
+    ("fileset = construct_fileset(",             FILESET_CALL,     "fileset call"),
     ('sample = "ttbar-semileptonic"',            OPEN_SAMPLE,      "sample open"),
     ("def process_file_0lep",                    PROCESS_0LEP_B,   "process_file_0lep"),
     # NB: upstream labels this "(Muon Channel Only)" - a copy-paste leftover;

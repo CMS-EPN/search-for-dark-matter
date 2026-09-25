@@ -874,11 +874,22 @@ CELL_4_NTUPLES_B = '''\
 # upstream registry was missing (RUNBOOK PHYS-01, PHYS-06).
 ntuples = dd.build_registry(nanoaod_filenames)
 
-with open("ntuples.json", "w") as f:
+with open(dpoa_io.NTUPLES_JSON, "w") as f:
     json.dump(ntuples, f, indent=1)
 
 print()
 print(f"{len(ntuples)} datasets indexed.")
+'''
+
+FILESET_CALL = '''\
+# ntuples_json resolves through dpoa_io.NTUPLES_JSON (repo root), not a bare
+# relative path -- a notebook's kernel working directory is wherever the
+# .ipynb file sits, which is notebooks/, not the repo root.
+fileset = construct_fileset(
+    ntuples_json=str(dpoa_io.NTUPLES_JSON),
+    limit=None,
+    verbose=True
+)
 '''
 
 CELL_7_XSEC_B = '''\
@@ -1032,10 +1043,13 @@ def run_analysis_for_channel(channel_mode):
 # from the docs, so its position shifts whenever the markdown changes.
 SIGNATURE_REPLACEMENTS = [
     ("def run_analysis_for_channel", RUN_ANALYSIS_SL, "run_analysis"),
+    ("fileset = construct_fileset(", FILESET_CALL, "fileset call"),
 ]
 
 
-# Cells kept verbatim (physics): 1, 6, 8, 9, 10, 12, 28, 29, 30, 33, 34
+# Cells kept verbatim (physics): 1, 6, 8, 9, 10, 12, 29, 30, 33, 34
+# (28, the fileset call, moved to SIGNATURE_REPLACEMENTS above: its only
+# content is a cache file path, not physics.)
 
 
 def main() -> int:
